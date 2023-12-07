@@ -7,21 +7,21 @@ North's robomaster works
 （很多注释掉的代码都是调试用的，不用管）
 具体代码解释：
 line9，10：筛选参数和去噪处理参数，h是色彩，s是饱和度,v是明度（因为用的是hsv色彩空间）。kernelsize是扩大(dilate)和腐蚀(erode)所用的卷积核大小，因为是奇数所以后面处理的时候用了2n+1的方法（吐舌）。gaussx和gaussy是高斯模糊中的x和y参数，gausscoresize是高斯模糊的卷积核大小。cannyx和cannyy是砍你边缘检测的x，y参数。Corpointmax,Corpointmin是使用折线拟合后的最大顶点数和最小顶点数。arealimit是最小面积（x100），hw是最小长宽比，light是使用灰度图辨识的颜色值（备选项，优先还是hsv，可以忽略）
-先看main函数
-读取图像，定义卷积核，转换为hsv色彩空间，inRange函数获得mask蒙版，高斯模糊砍你边缘检测扩大腐蚀去噪常规操作（参数调了好久QAQ）最后处理好的图像是imgErode。
-深拷贝一个原图储存在imgRect来准备输出，和原图一起放到处理函数getContours
-现在看getContours 函数
-创建容器contours来储存所有轮廓，hierarchy是层次结构，然后使用findContours来找轮廓
-创建conpoly来储存筛选后的轮廓
-创建boundbox来储存正矩形
-创建rotatedrectbox来储存旋转矩形变量
-用一个for循环遍历所有轮廓，用面积，顶点数量和长宽比来筛选灯条并将筛选出的灯条以旋转矩形的形式存入rotatedrectbox中
-定义一个flag来标记该灯条是否已被匹配
-将所有矩形按照中心点x坐标从小到大排序（图片中是从左往右）
-用一个双重循环遍历所有灯条，找到角度差不超过5度以及中心点y距离不超过150的灯条进行匹配，在flag中标记，若碰到空矩形或者已配对的矩形则跳过，由于已经排序，灯条会优先和相邻的角度近似的灯条配对，配对成功的两个灯条的下标会被存储到resul的x和y中。
-判断resul中是否有结果，有的话继续执行，没有的话输出“No result”
-若有结果
-使用for循环遍历resul取出两两配对的灯条，判断长宽关系（因为point[0]永远为左上点，所以要根据长宽关系来判断灯条方向）若宽大于长则需重新处理点的顺序来满足后面的运算
-使用calculate函数通过灯条长与装甲板边长关系（55：125）计算出顶点位置
-建立一一对应矩阵，透视变换
+line149 先看main函数
+line 151 ~ line194读取图像，定义卷积核，转换为hsv色彩空间，inRange函数获得mask蒙版，高斯模糊砍你边缘检测扩大腐蚀去噪常规操作（参数调了好久QAQ）最后处理好的图像是imgErode。
+line197,198深拷贝一个原图储存在imgRect来准备输出，和原图一起放到处理函数getContours
+line23 现在看getContours 函数
+line25,26 创建容器contours来储存所有轮廓，hierarchy是层次结构，然后使用findContours来找轮廓
+line28 创建conpoly来储存筛选后的轮廓
+line29 创建boundbox来储存正矩形
+line30 创建rotatedrectbox来储存旋转矩形变量
+line32 ~ line 47用一个for循环遍历所有轮廓，用面积，顶点数量和长宽比来筛选灯条并将筛选出的灯条以旋转矩形的形式存入rotatedrectbox中
+line48 定义一个flag来标记该灯条是否已被匹配
+line49 ~ line59将所有矩形按照中心点x坐标从小到大排序（图片中是从左往右）
+line62 ~ line80用一个双重循环遍历所有灯条，找到角度差不超过5度以及中心点y距离不超过150的灯条进行匹配，在flag中标记，若碰到空矩形或者已配对的矩形则跳过，由于已经排序，灯条会优先和相邻的角度近似的灯条配对，配对成功的两个灯条的下标会被存储到resul的x和y中。
+line81 判断resul中是否有结果，有的话继续执行，没有的话输出“No result”
+line82 若有结果
+line84 使用for循环遍历resul取出两两配对的灯条，判断长宽关系（line91~ line127因为point[0]永远为左上点，所以要根据长宽关系来判断灯条方向）若宽大于长则需重新处理点的顺序来满足后面的运算
+line134,135使用calculate函数通过灯条长与装甲板边长关系（55：125）计算出顶点位置
+line136~line142建立一一对应矩阵，透视变换
 结束，输出
